@@ -1,23 +1,37 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 void main() => runApp(const PomodoroApp());
 
-const darkBg = Color(0xff1d1b55);
-const cardBg = Color(0xff5a548c);
-const accent = Color(0xff00d0ad);
-const inputColor = Color(0xffeee9ff);
+const Color darkBg = Color(0xff1d1b55);
+const Color cardBg = Color(0xff5a548c);
+const Color accent = Color(0xff00d0ad);
+const Color inputColor = Color(0xffeee9ff);
+const Color softLabel = Color(0xffaab7d8);
 
 String loggedEmail = '';
 String profileName = '';
 String savedPassword = '';
-
-bool isDarkMode = true;
 String selectedLanguage = 'English';
 
+bool isDarkMode = true;
 bool reminderOn = true;
 bool messageOn = true;
 bool pointsOn = true;
+
+int userPoints = 6700;
+int accumulatedMinutes = 0;
+
+final ValueNotifier<int> themeNotifier = ValueNotifier<int>(0);
+
+Color get appBg => isDarkMode ? darkBg : Colors.white;
+Color get appCard => isDarkMode ? cardBg : const Color(0xffded8f4);
+Color get appText => isDarkMode ? inputColor : darkBg;
+Color get appPanel => isDarkMode ? inputColor : const Color(0xfff7f2ff);
+Color get appBottomNav => isDarkMode ? cardBg : const Color(0xffe6defa);
+
+/* ================= APP ROOT ================= */
 
 class PomodoroApp extends StatelessWidget {
   const PomodoroApp({super.key});
@@ -26,13 +40,16 @@ class PomodoroApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Arial'),
+      title: 'Ocufy Pomodoro',
+      theme: ThemeData(
+        fontFamily: 'Arial',
+      ),
       home: const LoginStartPage(),
     );
   }
 }
 
-/* ================= LOGIN START ================= */
+/* ================= LOGIN START PAGE ================= */
 
 class LoginStartPage extends StatelessWidget {
   const LoginStartPage({super.key});
@@ -44,38 +61,51 @@ class LoginStartPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const AppLogo(),
+          const AppLogo(size: 118),
+
           const SizedBox(height: 35),
-          const Text(
+
+          Text(
             'Ready to target\nyour focus',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? Colors.white : darkBg,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
             ),
           ),
-          const SizedBox(height: 100),
+
+          const SizedBox(height: 95),
+
           GreenButton(
             text: 'Login',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
+                MaterialPageRoute(
+                  builder: (_) => const LoginPage(),
+                ),
               );
             },
           ),
+
           const SizedBox(height: 10),
+
           GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const RegisterPage()),
+                MaterialPageRoute(
+                  builder: (_) => const RegisterPage(),
+                ),
               );
             },
-            child: const Text(
+            child: Text(
               "Doesn't have an account? Sign Up",
-              style: TextStyle(color: Colors.white, fontSize: 11),
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : darkBg,
+                fontSize: 11,
+              ),
             ),
           ),
         ],
@@ -100,17 +130,21 @@ class _LoginPageState extends State<LoginPage> {
   void login() {
     if (email.text.isEmpty || password.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sila masukkan email dan password')),
+        const SnackBar(
+          content: Text('Sila masukkan email dan password'),
+        ),
       );
       return;
     }
 
-    loggedEmail = email.text;
+    loggedEmail = email.text.trim();
     profileName = loggedEmail.split('@').first;
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoginSuccessPage()),
+      MaterialPageRoute(
+        builder: (_) => const LoginSuccessPage(),
+      ),
     );
   }
 
@@ -120,29 +154,56 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const AppLogo(),
-          const SizedBox(height: 60),
-          AuthInput(controller: email, hint: 'Email'),
-          AuthInput(controller: password, hint: 'Password', obscure: true),
+          const AppLogo(size: 115),
+
+          const SizedBox(height: 62),
+
+          AuthInput(
+            controller: email,
+            hint: 'Email',
+          ),
+
+          AuthInput(
+            controller: password,
+            hint: 'Password',
+            obscure: true,
+          ),
+
           const SizedBox(height: 12),
-          GreenButton(text: 'Log In', onTap: login),
+
+          GreenButton(
+            text: 'Log In',
+            onTap: login,
+          ),
+
           const SizedBox(height: 12),
+
           GestureDetector(
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const RegisterPage()),
+                MaterialPageRoute(
+                  builder: (_) => const RegisterPage(),
+                ),
               );
             },
-            child: const Text(
+            child: Text(
               "Don't have an account? Sign Up",
-              style: TextStyle(color: Colors.white, fontSize: 11),
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : darkBg,
+                fontSize: 11,
+              ),
             ),
           ),
+
           const SizedBox(height: 5),
-          const Text(
+
+          Text(
             'Forgot password?',
-            style: TextStyle(color: Colors.white, fontSize: 11),
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 11,
+            ),
           ),
         ],
       ),
@@ -167,21 +228,27 @@ class _RegisterPageState extends State<RegisterPage> {
   void register() {
     if (email.text.isEmpty || password.text.isEmpty || confirm.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sila lengkapkan semua maklumat')),
+        const SnackBar(
+          content: Text('Sila lengkapkan semua maklumat'),
+        ),
       );
       return;
     }
 
     if (password.text != confirm.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password tidak sama')),
+        const SnackBar(
+          content: Text('Password tidak sama'),
+        ),
       );
       return;
     }
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const RegisterSuccessPage()),
+      MaterialPageRoute(
+        builder: (_) => const RegisterSuccessPage(),
+      ),
     );
   }
 
@@ -191,34 +258,63 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const AppLogo(),
+          const AppLogo(size: 115),
+
           const SizedBox(height: 55),
-          AuthInput(controller: email, hint: 'Email'),
-          AuthInput(controller: password, hint: 'Password', obscure: true),
-          AuthInput(controller: confirm, hint: 'Confirm Password', obscure: true),
+
+          AuthInput(
+            controller: email,
+            hint: 'Email',
+          ),
+
+          AuthInput(
+            controller: password,
+            hint: 'Password',
+            obscure: true,
+          ),
+
+          AuthInput(
+            controller: confirm,
+            hint: 'Confirm Password',
+            obscure: true,
+          ),
+
           const SizedBox(height: 12),
-          GreenButton(text: 'Register', onTap: register),
+
+          GreenButton(
+            text: 'Register',
+            onTap: register,
+          ),
         ],
       ),
     );
   }
 }
 
-/* ================= SUCCESS PAGE ================= */
+/* ================= SUCCESS PAGES ================= */
 
 class RegisterSuccessPage extends StatelessWidget {
   const RegisterSuccessPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
-    });
+    Future.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const LoginPage(),
+            ),
+          );
+        }
+      },
+    );
 
-    return const SuccessPage(text: 'REGISTRATION\nSUCCESSFUL');
+    return const SuccessPage(
+      text: 'REGISTRATION\nSUCCESSFUL',
+    );
   }
 }
 
@@ -227,14 +323,23 @@ class LoginSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainPage()),
-      );
-    });
+    Future.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const MainPage(),
+            ),
+          );
+        }
+      },
+    );
 
-    return const SuccessPage(text: 'LOG IN\nSUCCESSFUL');
+    return const SuccessPage(
+      text: 'LOG IN\nSUCCESSFUL',
+    );
   }
 }
 
@@ -243,17 +348,25 @@ class LogoutSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
-    });
+    Future.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const LoginPage(),
+            ),
+          );
+        }
+      },
+    );
 
-    return const SuccessPage(text: 'LOG OUT\nSUCCESSFUL');
+    return const SuccessPage(
+      text: 'LOG OUT\nSUCCESSFUL',
+    );
   }
 }
-
 /* ================= MAIN PAGE ================= */
 
 class MainPage extends StatefulWidget {
@@ -266,28 +379,43 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int index = 0;
 
-  final pages = const [
-    HomePage(),
-    ChartPage(),
-    FocusPage(),
-    ReminderPage(),
-    AccountPage(),
-  ];
+  void refresh() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkBg,
-      body: SafeArea(child: pages[index]),
-      bottomNavigationBar: CustomNav(
-        selectedIndex: index,
-        onTap: (i) => setState(() => index = i),
-      ),
+    return ValueListenableBuilder<int>(
+      valueListenable: themeNotifier,
+      builder: (context, _, __) {
+        final pages = [
+          const HomePage(),
+          const ChartPage(),
+          FocusPage(onPointAdded: refresh),
+          const ReminderPage(),
+          AccountPage(onChanged: refresh),
+        ];
+
+        return Scaffold(
+          backgroundColor: appBg,
+          body: SafeArea(
+            child: pages[index],
+          ),
+          bottomNavigationBar: CustomNav(
+            selectedIndex: index,
+            onTap: (i) {
+              setState(() {
+                index = i;
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }
 
-/* ================= HOME PAGE - UPDATED ================= */
+/* ================= HOME PAGE ================= */
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -305,49 +433,68 @@ class _HomePageState extends State<HomePage> {
       title: 'Home',
       child: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(13),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
+          ShadowPanel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Your Point:', style: TextStyle(color: Colors.white)),
-                SizedBox(height: 8),
-                Box(
+              children: [
+                Text(
+                  'Your Point:',
+                  style: TextStyle(
+                    color: appText,
+                    fontSize: 12,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: appPanel,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
-                    '6700',
-                    style: TextStyle(
+                    userPoints.toString(),
+                    style: const TextStyle(
                       color: accent,
-                      fontSize: 76,
+                      fontSize: 75,
                       fontWeight: FontWeight.bold,
+                      height: .95,
                     ),
                   ),
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 18),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(13),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
+
+          ShadowPanel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Recent:', style: TextStyle(color: Colors.white)),
+                Text(
+                  'Recent:',
+                  style: TextStyle(
+                    color: appText,
+                    fontSize: 12,
+                  ),
+                ),
+
                 const SizedBox(height: 8),
+
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: inputColor,
+                    color: appPanel,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Column(
@@ -358,14 +505,18 @@ class _HomePageState extends State<HomePage> {
                         detail1: '20m exercise (2)',
                         detail2: '5m rest (2)',
                       ),
-                      Divider(color: Colors.grey),
+
+                      Divider(),
+
                       HomeLapRow(
                         lap: 'Lap 2',
                         time: '1h10m',
                         detail1: '30m exercise (2)',
                         detail2: '10m rest (1)',
                       ),
-                      Divider(color: Colors.grey),
+
+                      Divider(),
+
                       HomeLapRow(
                         lap: 'Lap 3',
                         time: '1h30m',
@@ -378,7 +529,9 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          const SizedBox(height: 15),
+
+          const SizedBox(height: 10),
+
           const Text(
             'Streak',
             style: TextStyle(
@@ -387,11 +540,16 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 8),
+
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             decoration: BoxDecoration(
-              color: cardBg,
+              color: appCard,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -450,6 +608,7 @@ class HomeLapRow extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
+
               Text(
                 time,
                 style: const TextStyle(
@@ -461,6 +620,7 @@ class HomeLapRow extends StatelessWidget {
             ],
           ),
         ),
+
         Expanded(
           child: Text(
             '$detail1\n$detail2',
@@ -475,8 +635,7 @@ class HomeLapRow extends StatelessWidget {
     );
   }
 }
-
-/* ================= CHART PAGE - UPDATED ================= */
+/* ================= CHART PAGE ================= */
 
 class ChartPage extends StatelessWidget {
   const ChartPage({super.key});
@@ -485,77 +644,134 @@ class ChartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PagePad(
       title: 'Chart',
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: inputColor,
-                borderRadius: BorderRadius.circular(14),
+      child: Center(
+        child: Container(
+          width: 285,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: appCard,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 277,
+                padding: const EdgeInsets.fromLTRB(10, 13, 10, 10),
+                decoration: BoxDecoration(
+                  color: appPanel,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: SizedBox(
+                    width: 244,
+                    height: 244,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: const Size(244, 244),
+                          painter: DonutChartPainter(),
+                        ),
+
+                        const Positioned(
+                          left: 9,
+                          top: 31,
+                          child: ChartLabel(text: 'EXERCISE'),
+                        ),
+
+                        const Positioned(
+                          left: 37,
+                          top: 80,
+                          child: Text(
+                            '30%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const Positioned(
+                          right: 20,
+                          top: 112,
+                          child: Text(
+                            '40%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const Positioned(
+                          left: 116,
+                          bottom: 43,
+                          child: Text(
+                            '20%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const Positioned(
+                          right: 12,
+                          top: 146,
+                          child: ChartLabel(text: 'STUDY'),
+                        ),
+
+                        const Positioned(
+                          left: 0,
+                          bottom: 25,
+                          child: ChartLabel(text: 'MEDITATION'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              child: SizedBox(
-                width: 210,
-                height: 210,
-                child: Stack(
-                  alignment: Alignment.center,
+
+              const SizedBox(height: 12),
+
+              Container(
+                width: double.infinity,
+                height: 188,
+                padding: const EdgeInsets.fromLTRB(31, 35, 20, 20),
+                decoration: BoxDecoration(
+                  color: appPanel,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomPaint(
-                      size: const Size(210, 210),
-                      painter: DonutChartPainter(),
+                    ProgressPill(
+                      text: 'STUDY',
+                      width: 165,
+                      color: cardBg,
                     ),
-                    const Positioned(left: 5, top: 20, child: ChartLabel(text: 'EXERCISE')),
-                    const Positioned(
-                      right: 10,
-                      top: 100,
-                      child: Text('40%', style: TextStyle(color: Colors.white, fontSize: 16)),
+
+                    ProgressPill(
+                      text: 'EXERCISE',
+                      width: 130,
+                      color: darkBg,
                     ),
-                    const Positioned(
-                      left: 35,
-                      top: 70,
-                      child: Text(
-                        '30%',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+
+                    ProgressPill(
+                      text: 'MEDITATION',
+                      width: 96,
+                      color: accent,
                     ),
-                    const Positioned(
-                      bottom: 25,
-                      child: Text(
-                        '20%',
-                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const Positioned(right: 0, bottom: 70, child: ChartLabel(text: 'STUDY')),
-                    const Positioned(left: 0, bottom: 20, child: ChartLabel(text: 'MEDITATION')),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: inputColor,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ProgressText(text: 'STUDY', width: 190, color: cardBg),
-                ProgressText(text: 'EXERCISE', width: 135, color: darkBg),
-                ProgressText(text: 'MEDITATION', width: 95, color: accent),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -564,65 +780,123 @@ class ChartPage extends StatelessWidget {
 class DonutChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    const stroke = 42.0;
-    final rect = Offset.zero & size;
+    const stroke = 44.0;
+
+    final center = Offset(
+      size.width / 2,
+      size.height / 2,
+    );
+
+    final radius = (size.width - stroke) / 2;
+
+    final rect = Rect.fromCircle(
+      center: center,
+      radius: radius,
+    );
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke;
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.butt;
 
+    // STUDY - 40%
     paint.color = cardBg;
-    canvas.drawArc(rect.deflate(stroke / 2), -1.57, 2.45, false, paint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      math.pi * 0.80,
+      false,
+      paint,
+    );
 
+    // MEDITATION - 20%
     paint.color = accent;
-    canvas.drawArc(rect.deflate(stroke / 2), 0.88, 1.55, false, paint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2 + math.pi * 0.80,
+      math.pi * 0.40,
+      false,
+      paint,
+    );
 
+    // EXERCISE - 30%
     paint.color = darkBg;
-    canvas.drawArc(rect.deflate(stroke / 2), 2.43, 2.30, false, paint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2 + math.pi * 1.20,
+      math.pi * 0.60,
+      false,
+      paint,
+    );
 
-    paint
-      ..color = inputColor
-      ..style = PaintingStyle.fill;
+    // Garisan pemisah putih
+    final separator = Paint()
+      ..color = appPanel
+      ..strokeWidth = 2.4
+      ..style = PaintingStyle.stroke;
 
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 62, paint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      math.pi * 2,
+      false,
+      separator,
+    );
+
+    // Lubang tengah
+    final hole = Paint()
+      ..style = PaintingStyle.fill
+      ..color = appPanel;
+
+    canvas.drawCircle(
+      center,
+      57,
+      hole,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class ChartLabel extends StatelessWidget {
   final String text;
 
-  const ChartLabel({super.key, required this.text});
+  const ChartLabel({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 11,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xffaab7d8),
+        color: softLabel,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Text(
         text,
         style: const TextStyle(
           color: darkBg,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1,
+          letterSpacing: 1.3,
         ),
       ),
     );
   }
 }
 
-class ProgressText extends StatelessWidget {
+class ProgressPill extends StatelessWidget {
   final String text;
   final double width;
   final Color color;
 
-  const ProgressText({
+  const ProgressPill({
     super.key,
     required this.text,
     required this.width,
@@ -633,9 +907,9 @@ class ProgressText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      height: 24,
+      height: 22,
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.only(left: 12),
+      padding: const EdgeInsets.only(left: 11),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
         color: color,
@@ -656,7 +930,12 @@ class ProgressText extends StatelessWidget {
 /* ================= FOCUS PAGE ================= */
 
 class FocusPage extends StatefulWidget {
-  const FocusPage({super.key});
+  final VoidCallback onPointAdded;
+
+  const FocusPage({
+    super.key,
+    required this.onPointAdded,
+  });
 
   @override
   State<FocusPage> createState() => _FocusPageState();
@@ -664,37 +943,98 @@ class FocusPage extends StatefulWidget {
 
 class _FocusPageState extends State<FocusPage> {
   int totalSeconds = 25 * 60;
-  int seconds = 0;
+  int seconds = 25 * 60;
+
   Timer? timer;
+
   final minute = TextEditingController(text: '25');
 
+  bool isRunning = false;
+
   void setTime() {
-    final min = int.tryParse(minute.text);
-    if (min == null || min <= 0) return;
+    final min = int.tryParse(minute.text.trim());
+
+    if (min == null || min <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sila masukkan masa yang betul'),
+        ),
+      );
+      return;
+    }
 
     timer?.cancel();
+
     setState(() {
       totalSeconds = min * 60;
       seconds = totalSeconds;
+      isRunning = false;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Timer set kepada $min minit'),
+      ),
+    );
   }
 
   void start() {
-    if (seconds == 0) setTime();
+    if (isRunning) return;
+
+    if (seconds <= 0) {
+      setTime();
+    }
+
+    setState(() {
+      isRunning = true;
+    });
 
     timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (seconds > 0) {
-        setState(() => seconds--);
-      } else {
-        timer?.cancel();
-      }
-    });
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+          (_) {
+        if (seconds > 0) {
+          setState(() {
+            seconds--;
+          });
+        } else {
+          timer?.cancel();
+
+          final completedMinutes = totalSeconds ~/ 60;
+
+          accumulatedMinutes += completedMinutes;
+
+          while (accumulatedMinutes >= 60) {
+            userPoints += 1;
+            accumulatedMinutes -= 60;
+          }
+
+          setState(() {
+            isRunning = false;
+          });
+
+          widget.onPointAdded();
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Focus complete! Points updated.'),
+              ),
+            );
+          }
+        }
+      },
+    );
   }
 
   void restart() {
     timer?.cancel();
-    setState(() => seconds = totalSeconds);
+
+    setState(() {
+      seconds = totalSeconds;
+      isRunning = false;
+    });
   }
 
   @override
@@ -711,53 +1051,128 @@ class _FocusPageState extends State<FocusPage> {
 
     return PagePad(
       title: "Let’s Focus",
+      titleSize: 34,
       child: Column(
         children: [
-          const SizedBox(height: 35),
+          const SizedBox(height: 45),
+
           Container(
-            width: 185,
-            height: 185,
+            width: 250,
+            height: 250,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: accent, width: 28),
+              border: Border.all(
+                color: accent,
+                width: 44,
+              ),
             ),
             child: Center(
               child: Text(
                 '$m:$s',
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 25,
+                  color: inputColor,
+                  fontSize: 35,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 3,
+                  letterSpacing: 4,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 25),
-          Box(
+
+          const SizedBox(height: 38),
+
+          Container(
+            height: 35,
+            width: 155,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: appCard,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  userPoints.toString().padLeft(4, '0'),
+                  style: TextStyle(
+                    color: appText,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    letterSpacing: 2,
+                  ),
+                ),
+                Text(
+                  'Points',
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : darkBg,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          Container(
+            width: 175,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            decoration: BoxDecoration(
+              color: appCard,
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Column(
               children: [
                 TextField(
                   controller: minute,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    filled: true,
-                    fillColor: inputColor,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : darkBg,
+                  ),
+                  decoration: InputDecoration(
+                    isDense: true,
                     hintText: 'Set minit',
+                    hintStyle: TextStyle(
+                      color: isDarkMode ? Colors.white54 : Colors.black45,
+                    ),
                     border: InputBorder.none,
                   ),
                 ),
-                const SizedBox(height: 10),
-                GreenButton(text: 'Set Time', onTap: setTime),
+
+                const SizedBox(height: 8),
+
+                SizedBox(
+                  height: 34,
+                  child: GreenButton(
+                    text: 'Set Time',
+                    onTap: setTime,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 25),
+
+          const SizedBox(height: 22),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RoundBtn(icon: Icons.play_arrow, onTap: start),
-              RoundBtn(icon: Icons.refresh, onTap: restart, white: true),
+              FocusCircleButton(
+                icon: Icons.play_arrow,
+                isStart: true,
+                onTap: start,
+              ),
+
+              FocusCircleButton(
+                icon: Icons.refresh,
+                isStart: false,
+                onTap: restart,
+              ),
             ],
           ),
         ],
@@ -766,6 +1181,39 @@ class _FocusPageState extends State<FocusPage> {
   }
 }
 
+class FocusCircleButton extends StatelessWidget {
+  final IconData icon;
+  final bool isStart;
+  final VoidCallback onTap;
+
+  const FocusCircleButton({
+    super.key,
+    required this.icon,
+    required this.isStart,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(44),
+      child: Container(
+        width: 88,
+        height: 88,
+        decoration: BoxDecoration(
+          color: isStart ? accent : appPanel,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          size: 42,
+          color: isStart ? appPanel : darkBg,
+        ),
+      ),
+    );
+  }
+}
 /* ================= REMINDER PAGE ================= */
 
 class ReminderPage extends StatelessWidget {
@@ -775,155 +1223,144 @@ class ReminderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PagePad(
       title: 'Reminder',
-      child: Column(
-        children: [
-          Box(
-            child: Column(
-              children: [
-                const Text(
-                  'Febuary',
-                  style: TextStyle(
-                    color: darkBg,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 4,
-                  ),
+      titleSize: 34,
+      child: ShadowPanel(
+        padding: const EdgeInsets.all(17),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(8, 18, 8, 12),
+          decoration: BoxDecoration(
+            color: appPanel,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              const Text(
+                'Febuary',
+                style: TextStyle(
+                  color: darkBg,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 5,
                 ),
-                const Divider(color: accent, thickness: 3),
-                Wrap(
-                  spacing: 7,
-                  runSpacing: 7,
-                  children: List.generate(
-                    28,
-                        (i) => CircleAvatar(
-                      radius: 12,
-                      backgroundColor: i == 0 ? accent : darkBg,
-                      child: Text(
-                        '${i + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                        ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: accent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(
+                  28,
+                      (i) => CircleAvatar(
+                    radius: 15,
+                    backgroundColor: i < 2 ? accent : appCard,
+                    child: Text(
+                      '${i + 1}',
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.white : darkBg,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Box(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Event', style: TextStyle(color: darkBg)),
-                SizedBox(height: 10),
-                Divider(color: accent, thickness: 3),
-              ],
-            ),
-          ),
-          GreenButton(
-            text: 'Add Reminder',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ReminderInputPage()),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+              ),
 
-/* ================= ACCOUNT PAGE ================= */
+              const SizedBox(height: 45),
 
-class AccountPage extends StatelessWidget {
-  const AccountPage({super.key});
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: accent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
 
-  void logout(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LogoutSuccessPage()),
-    );
-  }
+              const SizedBox(height: 12),
 
-  @override
-  Widget build(BuildContext context) {
-    return PagePad(
-      title: '',
-      child: Column(
-        children: [
-          const Divider(color: Colors.white, thickness: 4),
-          Row(
-            children: [
-              const CircleAvatar(radius: 33, backgroundColor: Colors.white),
-              const SizedBox(width: 15),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profileName.isEmpty ? 'Your Name' : profileName,
-                    style: const TextStyle(color: accent, fontSize: 14),
-                  ),
-                  const Text(
-                    '6700 points',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                  Text(
-                    loggedEmail,
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 11,
+              Container(
+                width: double.infinity,
+                height: 115,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: darkBg,
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Event',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 12),
+
+                    Container(
+                      width: 90,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: accent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    Container(
+                      width: 55,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Container(
+                      width: 70,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: inputColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              GreenButton(
+                text: 'Add Reminder',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ReminderInputPage(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: 15),
-          const Divider(color: Colors.white54),
-          MenuTile(
-            icon: Icons.redeem,
-            text: 'Redeem',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RedeemPage()),
-            ),
-          ),
-          MenuTile(
-            icon: Icons.settings,
-            text: 'Settings',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SettingsDetailPage()),
-            ),
-          ),
-          MenuTile(
-            icon: Icons.edit,
-            text: 'Edit Profile',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const EditProfilePage()),
-            ),
-          ),
-          MenuTile(
-            icon: Icons.report,
-            text: 'Report Bug',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ReportBugPage()),
-            ),
-          ),
-          MenuTile(
-            icon: Icons.info,
-            text: 'About',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AboutPage()),
-            ),
-          ),
-          const SizedBox(height: 30),
-          GreenButton(text: 'Log Out', onTap: () => logout(context)),
-        ],
+        ),
       ),
     );
   }
@@ -942,6 +1379,25 @@ class _ReminderInputPageState extends State<ReminderInputPage> {
   final event = TextEditingController();
   final date = TextEditingController();
 
+  void setReminder() {
+    if (event.text.isEmpty || date.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sila isi event dan date'),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Reminder saved'),
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SimplePage(
@@ -957,16 +1413,185 @@ class _ReminderInputPageState extends State<ReminderInputPage> {
               letterSpacing: 4,
             ),
           ),
+
           const SizedBox(height: 25),
-          AuthInput(controller: event, hint: 'Event'),
-          AuthInput(controller: date, hint: 'Date'),
+
+          AuthInput(
+            controller: event,
+            hint: 'Event',
+          ),
+
+          AuthInput(
+            controller: date,
+            hint: 'Date',
+          ),
+
           const SizedBox(height: 35),
-          GreenButton(text: 'Set', onTap: () => Navigator.pop(context)),
+
+          GreenButton(
+            text: 'Set',
+            onTap: setReminder,
+          ),
         ],
       ),
     );
   }
 }
+/* ================= ACCOUNT PAGE ================= */
+
+class AccountPage extends StatelessWidget {
+  final VoidCallback onChanged;
+
+  const AccountPage({
+    super.key,
+    required this.onChanged,
+  });
+
+  void logout(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LogoutSuccessPage(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PagePad(
+      title: '',
+      child: Column(
+        children: [
+          Divider(
+            color: isDarkMode ? Colors.white : darkBg,
+            thickness: 4,
+          ),
+
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 33,
+                backgroundColor: Colors.white,
+              ),
+
+              const SizedBox(width: 15),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profileName.isEmpty ? 'Your Name' : profileName,
+                    style: const TextStyle(
+                      color: accent,
+                      fontSize: 14,
+                    ),
+                  ),
+
+                  Text(
+                    '$userPoints points',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : darkBg,
+                      fontSize: 12,
+                    ),
+                  ),
+
+                  Text(
+                    loggedEmail,
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white54 : Colors.black54,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 15),
+
+          Divider(
+            color: isDarkMode ? Colors.white54 : Colors.black45,
+          ),
+
+          MenuTile(
+            icon: Icons.redeem,
+            text: 'Redeem',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const RedeemPage(),
+                ),
+              );
+            },
+          ),
+
+          MenuTile(
+            icon: Icons.settings,
+            text: 'Settings',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsDetailPage(),
+                ),
+              );
+            },
+          ),
+
+          MenuTile(
+            icon: Icons.edit,
+            text: 'Edit Profile',
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EditProfilePage(),
+                ),
+              );
+
+              onChanged();
+            },
+          ),
+
+          MenuTile(
+            icon: Icons.report,
+            text: 'Report Bug',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ReportBugPage(),
+                ),
+              );
+            },
+          ),
+
+          MenuTile(
+            icon: Icons.info,
+            text: 'About',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AboutPage(),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 30),
+
+          GreenButton(
+            text: 'Log Out',
+            onTap: () => logout(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /* ================= REDEEM PAGE ================= */
 
 class RedeemPage extends StatelessWidget {
@@ -989,11 +1614,28 @@ class RedeemPage extends StatelessWidget {
               letterSpacing: 4,
             ),
           ),
+
           SizedBox(height: 25),
-          RedeemItem(name: 'Product 1', point: '1000'),
-          RedeemItem(name: 'Product 2', point: '2000'),
-          RedeemItem(name: 'Product 3', point: '3500'),
-          RedeemItem(name: 'Product 4', point: '5000'),
+
+          RedeemItem(
+            name: 'Product 1',
+            point: '1000',
+          ),
+
+          RedeemItem(
+            name: 'Product 2',
+            point: '2000',
+          ),
+
+          RedeemItem(
+            name: 'Product 3',
+            point: '3500',
+          ),
+
+          RedeemItem(
+            name: 'Product 4',
+            point: '5000',
+          ),
         ],
       ),
     );
@@ -1022,8 +1664,13 @@ class RedeemItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const CircleAvatar(radius: 16, backgroundColor: inputColor),
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: appPanel,
+          ),
+
           const SizedBox(width: 18),
+
           Expanded(
             child: Text(
               name,
@@ -1033,6 +1680,7 @@ class RedeemItem extends StatelessWidget {
               ),
             ),
           ),
+
           Text(
             point,
             style: const TextStyle(
@@ -1067,11 +1715,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void save() {
+    if (name.text.isEmpty || email.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sila isi nama dan email'),
+        ),
+      );
+      return;
+    }
+
     profileName = name.text;
     loggedEmail = email.text;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved')),
+      const SnackBar(
+        content: Text('Profile saved'),
+      ),
     );
 
     Navigator.pop(context);
@@ -1085,20 +1744,55 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Name:', style: TextStyle(color: Colors.white)),
-          AuthInput(controller: name, hint: 'Name'),
-          const Text('Email:', style: TextStyle(color: Colors.white)),
-          AuthInput(controller: email, hint: 'Email'),
-          const Text('Profile Image:', style: TextStyle(color: Colors.white)),
+          Text(
+            'Name:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
+          AuthInput(
+            controller: name,
+            hint: 'Name',
+          ),
+
+          Text(
+            'Email:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
+          AuthInput(
+            controller: email,
+            hint: 'Email',
+          ),
+
+          Text(
+            'Profile Image:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
           const SizedBox(height: 8),
+
           Center(
             child: SizedBox(
               width: 120,
-              child: GreenButton(text: '+', onTap: () {}),
+              child: GreenButton(
+                text: '+',
+                onTap: () {},
+              ),
             ),
           ),
+
           const SizedBox(height: 25),
-          GreenButton(text: 'Save', onTap: save),
+
+          GreenButton(
+            text: 'Save',
+            onTap: save,
+          ),
         ],
       ),
     );
@@ -1121,13 +1815,17 @@ class _ReportBugPageState extends State<ReportBugPage> {
   void sendBug() {
     if (title.text.isEmpty || desc.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sila lengkapkan issue title dan description')),
+        const SnackBar(
+          content: Text('Sila lengkapkan issue title dan description'),
+        ),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bug report sent')),
+      const SnackBar(
+        content: Text('Bug report sent'),
+      ),
     );
 
     Navigator.pop(context);
@@ -1141,30 +1839,59 @@ class _ReportBugPageState extends State<ReportBugPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Issue Title:', style: TextStyle(color: Colors.white)),
-          AuthInput(controller: title, hint: ''),
-          const Text('Description:', style: TextStyle(color: Colors.white)),
+          Text(
+            'Issue Title:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
+          AuthInput(
+            controller: title,
+            hint: '',
+          ),
+
+          Text(
+            'Description:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
           const SizedBox(height: 8),
+
           TextField(
             controller: desc,
             maxLines: 6,
+            style: const TextStyle(
+              color: darkBg,
+            ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: inputColor,
+              fillColor: appPanel,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(22),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
+
           const SizedBox(height: 12),
+
           Center(
             child: SizedBox(
               width: 120,
-              child: GreenButton(text: '+', onTap: () {}),
+              child: GreenButton(
+                text: '+',
+                onTap: () {},
+              ),
             ),
           ),
-          GreenButton(text: 'Send', onTap: sendBug),
+
+          GreenButton(
+            text: 'Send',
+            onTap: sendBug,
+          ),
         ],
       ),
     );
@@ -1182,53 +1909,70 @@ class AboutPage extends StatelessWidget {
       title: '',
       topIcon: Icons.info_outline,
       child: Column(
-        children: const [
-          AppLogo(),
-          SizedBox(height: 25),
+        children: [
+          const AppLogo(size: 92),
+
+          const SizedBox(height: 25),
+
           Text(
             'Ocufy\nv1.0.0',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
           ),
-          SizedBox(height: 25),
+
+          const SizedBox(height: 25),
+
           Text(
             'Ready to target\nyour focus',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? Colors.white : darkBg,
               fontSize: 17,
               fontWeight: FontWeight.bold,
               letterSpacing: 3,
             ),
           ),
-          SizedBox(height: 25),
+
+          const SizedBox(height: 25),
+
           Text(
             'Term of service',
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? Colors.white : darkBg,
               decoration: TextDecoration.underline,
             ),
           ),
-          SizedBox(height: 8),
+
+          const SizedBox(height: 8),
+
           Text(
             'Privacy Policy',
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? Colors.white : darkBg,
               decoration: TextDecoration.underline,
             ),
           ),
-          SizedBox(height: 8),
+
+          const SizedBox(height: 8),
+
           Text(
             'Open Source Licenses',
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? Colors.white : darkBg,
               decoration: TextDecoration.underline,
             ),
           ),
-          SizedBox(height: 55),
+
+          const SizedBox(height: 55),
+
           Text(
             '© 2026 Ocufy Corp. All rights reserved',
-            style: TextStyle(color: Colors.white, fontSize: 10),
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -1243,7 +1987,7 @@ class SettingsDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 25, 22, 22),
@@ -1252,21 +1996,30 @@ class SettingsDetailPage extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: isDarkMode ? Colors.white : darkBg,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-              const Text(
+
+              Text(
                 'Settings',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+                style: TextStyle(
+                  color: appText,
+                  fontSize: 24,
+                ),
               ),
+
               const SizedBox(height: 25),
+
               Expanded(
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: cardBg,
+                    color: appCard,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -1276,31 +2029,37 @@ class SettingsDetailPage extends StatelessWidget {
                         text: 'Theme',
                         page: const ThemePage(),
                       ),
+
                       SettingOption(
                         icon: Icons.edit,
                         text: 'Change Password',
                         page: const ChangePasswordPage(),
                       ),
+
                       SettingOption(
                         icon: Icons.translate,
                         text: 'Language',
                         page: const LanguagePage(),
                       ),
+
                       SettingOption(
                         icon: Icons.notifications_none,
                         text: 'Notifications',
                         page: const NotificationPage(),
                       ),
+
                       SettingOption(
                         icon: Icons.send,
                         text: 'Send Feedback',
                         page: const SendFeedbackPage(),
                       ),
+
                       SettingOption(
                         icon: Icons.security,
                         text: 'Security',
                         page: const SecurityPage(),
                       ),
+
                       SettingOption(
                         icon: Icons.headphones,
                         text: 'Customer Services',
@@ -1328,6 +2087,13 @@ class ThemePage extends StatefulWidget {
 }
 
 class _ThemePageState extends State<ThemePage> {
+  void setThemeMode(bool dark) {
+    setState(() {
+      isDarkMode = dark;
+      themeNotifier.value++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SettingSubPage(
@@ -1335,20 +2101,20 @@ class _ThemePageState extends State<ThemePage> {
       title: 'Theme',
       child: Column(
         children: [
-          const Text(
+          Text(
             'Choose your theme color',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
           ),
+
           const SizedBox(height: 20),
+
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isDarkMode = false;
-                    });
-                  },
+                  onPressed: () => setThemeMode(false),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: !isDarkMode ? Colors.white : darkBg,
                     foregroundColor: !isDarkMode ? darkBg : Colors.white,
@@ -1357,13 +2123,10 @@ class _ThemePageState extends State<ThemePage> {
                   child: const Text('LIGHT'),
                 ),
               ),
+
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isDarkMode = true;
-                    });
-                  },
+                  onPressed: () => setThemeMode(true),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDarkMode ? darkBg : Colors.white,
                     foregroundColor: isDarkMode ? Colors.white : darkBg,
@@ -1397,14 +2160,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   void savePassword() {
     if (email.text.isEmpty || newPass.text.isEmpty || confirmPass.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sila lengkapkan semua maklumat')),
+        const SnackBar(
+          content: Text('Sila lengkapkan semua maklumat'),
+        ),
       );
       return;
     }
 
     if (newPass.text != confirmPass.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password tidak sama')),
+        const SnackBar(
+          content: Text('Password tidak sama'),
+        ),
       );
       return;
     }
@@ -1412,7 +2179,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     savedPassword = newPass.text;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password berjaya ditukar')),
+      const SnackBar(
+        content: Text('Password berjaya ditukar'),
+      ),
     );
 
     Navigator.pop(context);
@@ -1426,21 +2195,50 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Enter email', style: TextStyle(color: Colors.white)),
-          AuthInput(controller: email, hint: 'Email'),
-          const Text('New password', style: TextStyle(color: Colors.white)),
-          AuthInput(controller: newPass, hint: 'Password', obscure: true),
-          const Text(
-            'Confirm new password',
-            style: TextStyle(color: Colors.white),
+          Text(
+            'Enter email',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
           ),
+
+          AuthInput(
+            controller: email,
+            hint: 'Email',
+          ),
+
+          Text(
+            'New password',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
+          AuthInput(
+            controller: newPass,
+            hint: 'Password',
+            obscure: true,
+          ),
+
+          Text(
+            'Confirm new password',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
           AuthInput(
             controller: confirmPass,
             hint: 'Confirm Password',
             obscure: true,
           ),
+
           const SizedBox(height: 20),
-          GreenButton(text: 'Save', onTap: savePassword),
+
+          GreenButton(
+            text: 'Save',
+            onTap: savePassword,
+          ),
         ],
       ),
     );
@@ -1466,16 +2264,6 @@ class _LanguagePageState extends State<LanguagePage> {
     'Italiano',
   ];
 
-  void changeLanguage(String lang) {
-    setState(() {
-      selectedLanguage = lang;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Language changed to $lang')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SettingSubPage(
@@ -1483,18 +2271,28 @@ class _LanguagePageState extends State<LanguagePage> {
       title: 'Language',
       child: Column(
         children: languages.map((lang) {
+          final selected = selectedLanguage == lang;
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: SizedBox(
               width: double.infinity,
               height: 42,
               child: ElevatedButton(
-                onPressed: () => changeLanguage(lang),
+                onPressed: () {
+                  setState(() {
+                    selectedLanguage = lang;
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Language changed to $lang'),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  selectedLanguage == lang ? accent : Colors.white,
-                  foregroundColor:
-                  selectedLanguage == lang ? Colors.white : darkBg,
+                  backgroundColor: selected ? accent : Colors.white,
+                  foregroundColor: selected ? Colors.white : darkBg,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(22),
@@ -1536,6 +2334,7 @@ class _NotificationPageState extends State<NotificationPage> {
               });
             },
           ),
+
           NotifyTile(
             text: 'Message',
             value: messageOn,
@@ -1545,6 +2344,7 @@ class _NotificationPageState extends State<NotificationPage> {
               });
             },
           ),
+
           NotifyTile(
             text: 'Points Collected',
             value: pointsOn,
@@ -1553,44 +2353,6 @@ class _NotificationPageState extends State<NotificationPage> {
                 pointsOn = v;
               });
             },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NotifyTile extends StatelessWidget {
-  final String text;
-  final bool value;
-  final Function(bool) onChanged;
-
-  const NotifyTile({
-    super.key,
-    required this.text,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 42,
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(text, style: const TextStyle(color: darkBg)),
-          ),
-          Switch(
-            value: value,
-            activeColor: accent,
-            onChanged: onChanged,
           ),
         ],
       ),
@@ -1612,13 +2374,17 @@ class _SendFeedbackPageState extends State<SendFeedbackPage> {
   void send() {
     if (feedback.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sila tulis feedback dahulu')),
+        const SnackBar(
+          content: Text('Sila tulis feedback dahulu'),
+        ),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Feedback sent')),
+      const SnackBar(
+        content: Text('Feedback sent'),
+      ),
     );
 
     Navigator.pop(context);
@@ -1632,22 +2398,37 @@ class _SendFeedbackPageState extends State<SendFeedbackPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Description:', style: TextStyle(color: Colors.white)),
+          Text(
+            'Description:',
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
+
           const SizedBox(height: 15),
+
           TextField(
             controller: feedback,
             maxLines: 6,
+            style: const TextStyle(
+              color: darkBg,
+            ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.white,
+              fillColor: appPanel,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
+
           const SizedBox(height: 60),
-          GreenButton(text: 'Send', onTap: send),
+
+          GreenButton(
+            text: 'Send',
+            onTap: send,
+          ),
         ],
       ),
     );
@@ -1692,8 +2473,14 @@ class SecurityVerificationPage extends StatelessWidget {
       whiteCard: true,
       child: Column(
         children: [
-          const Icon(Icons.verified_user, color: accent, size: 90),
+          const Icon(
+            Icons.verified_user,
+            color: accent,
+            size: 90,
+          ),
+
           const SizedBox(height: 20),
+
           const Text(
             "We've Sent Verification\nCode to your email",
             textAlign: TextAlign.center,
@@ -1703,7 +2490,9 @@ class SecurityVerificationPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 8),
+
           Text(
             loggedEmail.isEmpty ? 'to your email' : loggedEmail,
             textAlign: TextAlign.center,
@@ -1713,16 +2502,25 @@ class SecurityVerificationPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 8),
+
           const Text(
             'Enter the code below valid for\n5 minutes',
             textAlign: TextAlign.center,
-            style: TextStyle(color: darkBg, fontSize: 12),
+            style: TextStyle(
+              color: darkBg,
+              fontSize: 12,
+            ),
           ),
+
           const SizedBox(height: 20),
+
           GreenButton(
             text: 'Continue',
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+            },
           ),
         ],
       ),
@@ -1746,16 +2544,22 @@ class CustomerServicePage extends StatelessWidget {
             text: 'Call Us',
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Calling customer service...')),
+                const SnackBar(
+                  content: Text('Calling customer service...'),
+                ),
               );
             },
           ),
+
           const SizedBox(height: 15),
+
           GreenButton(
             text: 'Chat Us',
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Opening chat...')),
+                const SnackBar(
+                  content: Text('Opening chat...'),
+                ),
               );
             },
           ),
@@ -1770,30 +2574,64 @@ class CustomerServicePage extends StatelessWidget {
 class PagePad extends StatelessWidget {
   final String title;
   final Widget child;
+  final double titleSize;
 
   const PagePad({
     super.key,
     required this.title,
     required this.child,
+    this.titleSize = 30,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 28, 25, 10),
+      padding: const EdgeInsets.fromLTRB(25, 58, 25, 10),
       child: Column(
         children: [
           if (title.isNotEmpty)
             Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 22),
+              style: TextStyle(
+                color: appText,
+                fontSize: titleSize,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-          const SizedBox(height: 25),
+
+          const SizedBox(height: 44),
+
           Expanded(
-            child: SingleChildScrollView(child: child),
+            child: SingleChildScrollView(
+              child: child,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class ShadowPanel extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+
+  const ShadowPanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(12),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: appCard,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: child,
     );
   }
 }
@@ -1815,7 +2653,7 @@ class SettingSubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 25, 18, 18),
@@ -1824,26 +2662,43 @@ class SettingSubPage extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: isDarkMode ? Colors.white : darkBg,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-              Icon(icon, color: Colors.white, size: 45),
+
+              Icon(
+                icon,
+                color: isDarkMode ? Colors.white : darkBg,
+                size: 45,
+              ),
+
               const SizedBox(height: 8),
+
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : darkBg,
+                  fontSize: 13,
+                ),
               ),
+
               const SizedBox(height: 20),
+
               Expanded(
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    color: whiteCard ? Colors.white : cardBg,
+                    color: whiteCard ? Colors.white : appCard,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: SingleChildScrollView(child: child),
+                  child: SingleChildScrollView(
+                    child: child,
+                  ),
                 ),
               ),
             ],
@@ -1871,7 +2726,7 @@ class SimplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: appBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 25, 20, 20),
@@ -1880,33 +2735,50 @@ class SimplePage extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: isDarkMode ? Colors.white : darkBg,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
+
               if (topIcon != null)
-                Icon(topIcon, color: Colors.white, size: 90),
+                Icon(
+                  topIcon,
+                  color: isDarkMode ? Colors.white : darkBg,
+                  size: 90,
+                ),
+
               if (avatar)
                 const CircleAvatar(
                   radius: 70,
                   backgroundColor: Colors.white70,
                 ),
+
               if (title.isNotEmpty)
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 24),
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : darkBg,
+                    fontSize: 24,
+                  ),
                 ),
+
               const SizedBox(height: 30),
+
               Expanded(
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    color: cardBg,
+                    color: appCard,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: SingleChildScrollView(child: child),
+                  child: SingleChildScrollView(
+                    child: child,
+                  ),
                 ),
               ),
             ],
@@ -1920,16 +2792,19 @@ class SimplePage extends StatelessWidget {
 class Box extends StatelessWidget {
   final Widget child;
 
-  const Box({super.key, required this.child});
+  const Box({
+    super.key,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 0),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: inputColor,
+        color: appPanel,
         borderRadius: BorderRadius.circular(10),
       ),
       child: child,
@@ -1956,10 +2831,22 @@ class MenuTile extends StatelessWidget {
         ListTile(
           dense: true,
           onTap: onTap,
-          leading: Icon(icon, color: Colors.white, size: 18),
-          title: Text(text, style: const TextStyle(color: Colors.white)),
+          leading: Icon(
+            icon,
+            color: isDarkMode ? Colors.white : darkBg,
+            size: 18,
+          ),
+          title: Text(
+            text,
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+            ),
+          ),
         ),
-        const Divider(color: Colors.white24),
+
+        Divider(
+          color: isDarkMode ? Colors.white24 : Colors.black26,
+        ),
       ],
     );
   }
@@ -1982,17 +2869,70 @@ class SettingOption extends StatelessWidget {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: Colors.white, size: 19),
+      leading: Icon(
+        icon,
+        color: isDarkMode ? Colors.white : darkBg,
+        size: 19,
+      ),
       title: Text(
         text,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
+        style: TextStyle(
+          color: isDarkMode ? Colors.white : darkBg,
+          fontSize: 13,
+        ),
       ),
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => page),
+          MaterialPageRoute(
+            builder: (_) => page,
+          ),
         );
       },
+    );
+  }
+}
+
+class NotifyTile extends StatelessWidget {
+  final String text;
+  final bool value;
+  final Function(bool) onChanged;
+
+  const NotifyTile({
+    super.key,
+    required this.text,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 42,
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: darkBg,
+              ),
+            ),
+          ),
+
+          Switch(
+            value: value,
+            activeColor: accent,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2010,32 +2950,52 @@ class CustomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icons = [
-      Icons.apps,
-      Icons.timer,
+      Icons.blur_on,
+      Icons.timer_outlined,
       Icons.add,
-      Icons.access_time,
+      Icons.nightlight_round,
       Icons.person_outline,
     ];
 
     return Container(
-      height: 55,
-      color: cardBg,
+      height: 58,
+      margin: const EdgeInsets.fromLTRB(25, 0, 25, 12),
+      decoration: BoxDecoration(
+        color: appBottomNav,
+        borderRadius: BorderRadius.circular(28),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(
           icons.length,
-              (i) => GestureDetector(
-            onTap: () => onTap(i),
-            child: CircleAvatar(
-              radius: i == 2 ? 15 : 13,
-              backgroundColor: selectedIndex == i ? accent : Colors.transparent,
-              child: Icon(
-                icons[i],
-                size: 18,
-                color: selectedIndex == i ? Colors.white : Colors.white70,
+              (i) {
+            final selected = selectedIndex == i;
+
+            return GestureDetector(
+              onTap: () => onTap(i),
+              child: CircleAvatar(
+                radius: i == 2 ? 17 : 15,
+                backgroundColor: i == 2
+                    ? selected
+                    ? accent
+                    : appPanel
+                    : Colors.transparent,
+                child: Icon(
+                  icons[i],
+                  size: i == 2 ? 30 : 31,
+                  color: i == 2
+                      ? selected
+                      ? appPanel
+                      : accent
+                      : selected
+                      ? accent
+                      : isDarkMode
+                      ? Colors.white
+                      : darkBg,
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -2055,21 +3015,40 @@ class AuthBg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBg,
+      backgroundColor: appBg,
       body: Stack(
         children: [
-          const Positioned(left: -35, bottom: 140, child: Dot(size: 75)),
-          const Positioned(right: -25, bottom: 150, child: Dot(size: 60)),
-          const Positioned(right: 25, top: 170, child: Dot(size: 22)),
+          const Positioned(
+            left: -35,
+            bottom: 140,
+            child: Dot(size: 75),
+          ),
+
+          const Positioned(
+            right: -25,
+            bottom: 150,
+            child: Dot(size: 60),
+          ),
+
+          const Positioned(
+            right: 25,
+            top: 170,
+            child: Dot(size: 22),
+          ),
+
           if (showBack)
             Positioned(
               top: 45,
               left: 18,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: isDarkMode ? Colors.white : darkBg,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 38),
@@ -2085,7 +3064,10 @@ class AuthBg extends StatelessWidget {
 class Dot extends StatelessWidget {
   final double size;
 
-  const Dot({super.key, required this.size});
+  const Dot({
+    super.key,
+    required this.size,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2103,7 +3085,10 @@ class Dot extends StatelessWidget {
 class SuccessPage extends StatelessWidget {
   final String text;
 
-  const SuccessPage({super.key, required this.text});
+  const SuccessPage({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2113,8 +3098,8 @@ class SuccessPage extends StatelessWidget {
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : darkBg,
             fontSize: 19,
             fontWeight: FontWeight.bold,
           ),
@@ -2144,12 +3129,19 @@ class AuthInput extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscure,
-        style: const TextStyle(fontSize: 12),
+        style: const TextStyle(
+          fontSize: 12,
+          color: darkBg,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(fontSize: 11),
+          hintStyle: const TextStyle(
+            fontSize: 11,
+            color: Colors.grey,
+          ),
           filled: true,
-          fillColor: inputColor,
+          fillColor: appPanel,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 18),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(24),
             borderSide: BorderSide.none,
@@ -2173,7 +3165,7 @@ class GreenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 39,
+      height: 44,
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onTap,
@@ -2182,48 +3174,36 @@ class GreenButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(24),
           ),
         ),
         child: Text(
           text,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class RoundBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool white;
-
-  const RoundBtn({
-    super.key,
-    required this.icon,
-    required this.onTap,
-    this.white = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 28,
-      backgroundColor: white ? Colors.white : accent,
-      child: IconButton(
-        onPressed: onTap,
-        icon: Icon(icon, color: white ? darkBg : Colors.white),
       ),
     );
   }
 }
 
 class AppLogo extends StatelessWidget {
-  const AppLogo({super.key});
+  final double size;
+
+  const AppLogo({
+    super.key,
+    this.size = 100,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.bubble_chart, color: accent, size: 100);
+    return Icon(
+      Icons.bubble_chart,
+      color: accent,
+      size: size,
+    );
   }
 }
