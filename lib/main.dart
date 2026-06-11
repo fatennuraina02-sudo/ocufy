@@ -31,7 +31,7 @@ Color get appText => isDarkMode ? inputColor : darkBg;
 Color get appPanel => isDarkMode ? inputColor : const Color(0xfff7f2ff);
 Color get appBottomNav => isDarkMode ? cardBg : const Color(0xffe6defa);
 
-/* ================= APP ROOT ================= */
+// APP ROOT
 
 class PomodoroApp extends StatelessWidget {
   const PomodoroApp({super.key});
@@ -49,7 +49,7 @@ class PomodoroApp extends StatelessWidget {
   }
 }
 
-/* ================= LOGIN START PAGE ================= */
+// LOGIN START PAGE
 
 class LoginStartPage extends StatelessWidget {
   const LoginStartPage({super.key});
@@ -114,7 +114,7 @@ class LoginStartPage extends StatelessWidget {
   }
 }
 
-/* ================= LOGIN PAGE ================= */
+// LOGIN PAGE
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
     if (email.text.isEmpty || password.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila masukkan email dan password'),
+          content: Text('Please enter your email and password.'),
         ),
       );
       return;
@@ -211,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-/* ================= REGISTER PAGE ================= */
+// REGISTER PAGE
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -229,7 +229,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (email.text.isEmpty || password.text.isEmpty || confirm.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila lengkapkan semua maklumat'),
+          content: Text('Please complete all information.'),
         ),
       );
       return;
@@ -291,7 +291,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-/* ================= SUCCESS PAGES ================= */
+// SUCCESS PAGES
 
 class RegisterSuccessPage extends StatelessWidget {
   const RegisterSuccessPage({super.key});
@@ -367,7 +367,7 @@ class LogoutSuccessPage extends StatelessWidget {
     );
   }
 }
-/* ================= MAIN PAGE ================= */
+// MAIN PAGE
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -415,7 +415,7 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-/* ================= HOME PAGE ================= */
+// HOME PAGE
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -451,17 +451,18 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 14,
+                    vertical: 24,
                   ),
                   decoration: BoxDecoration(
                     color: appPanel,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     userPoints.toString(),
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: accent,
-                      fontSize: 75,
+                      fontSize: 100,
                       fontWeight: FontWeight.bold,
                       height: .95,
                     ),
@@ -490,12 +491,12 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
+                    horizontal: 14,
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     color: appPanel,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Column(
                     children: [
@@ -506,7 +507,7 @@ class _HomePageState extends State<HomePage> {
                         detail2: '5m rest (2)',
                       ),
 
-                      Divider(),
+                      Divider(color: Colors.grey, thickness: 0.5),
 
                       HomeLapRow(
                         lap: 'Lap 2',
@@ -515,7 +516,7 @@ class _HomePageState extends State<HomePage> {
                         detail2: '10m rest (1)',
                       ),
 
-                      Divider(),
+                      Divider(color: Colors.grey, thickness: 0.5),
 
                       HomeLapRow(
                         lap: 'Lap 3',
@@ -546,11 +547,11 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
-              vertical: 10,
+              vertical: 14,
             ),
             decoration: BoxDecoration(
               color: appCard,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(30),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -564,7 +565,7 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Icon(
                     Icons.local_fire_department,
-                    size: 31,
+                    size: 36,
                     color: streak[i] ? Colors.orange : Colors.white,
                   ),
                 ),
@@ -596,7 +597,7 @@ class HomeLapRow extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 95,
+          width: 100,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -605,7 +606,7 @@ class HomeLapRow extends StatelessWidget {
                 style: const TextStyle(
                   color: darkBg,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
 
@@ -613,7 +614,7 @@ class HomeLapRow extends StatelessWidget {
                 time,
                 style: const TextStyle(
                   color: accent,
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -622,12 +623,15 @@ class HomeLapRow extends StatelessWidget {
         ),
 
         Expanded(
-          child: Text(
-            '$detail1\n$detail2',
-            style: const TextStyle(
-              color: darkBg,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '$detail1\n$detail2',
+              style: const TextStyle(
+                color: darkBg,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
@@ -635,7 +639,7 @@ class HomeLapRow extends StatelessWidget {
     );
   }
 }
-/* ================= CHART PAGE ================= */
+// CHART PAGE
 
 class ChartPage extends StatelessWidget {
   const ChartPage({super.key});
@@ -646,48 +650,74 @@ class ChartPage extends StatelessWidget {
       title: 'Chart',
       child: Center(
         child: Container(
-          width: 285,
+          width: 310,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: appCard,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(22),
           ),
           child: Column(
             children: [
               Container(
                 width: double.infinity,
-                height: 277,
+                height: 285,
                 padding: const EdgeInsets.fromLTRB(10, 13, 10, 10),
                 decoration: BoxDecoration(
                   color: appPanel,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
                   child: SizedBox(
-                    width: 244,
-                    height: 244,
+                    width: 250,
+                    height: 250,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
                         CustomPaint(
-                          size: const Size(244, 244),
+                          size: const Size(250, 250),
                           painter: DonutChartPainter(),
                         ),
 
                         const Positioned(
-                          left: 9,
-                          top: 31,
+                          left: 10,
+                          top: 40,
                           child: ChartLabel(text: 'EXERCISE'),
                         ),
 
                         const Positioned(
-                          left: 37,
-                          top: 80,
+                          left: 20,
+                          top: 105,
                           child: Text(
                             '30%',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 15,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const Positioned(
+                          right: 40,
+                          top: 50,
+                          child: Text(
+                            '40%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const Positioned(
+                          left: 110,
+                          bottom: 20,
+                          child: Text(
+                            '20%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -695,39 +725,13 @@ class ChartPage extends StatelessWidget {
 
                         const Positioned(
                           right: 20,
-                          top: 112,
-                          child: Text(
-                            '40%',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                        const Positioned(
-                          left: 116,
-                          bottom: 43,
-                          child: Text(
-                            '20%',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                        const Positioned(
-                          right: 12,
-                          top: 146,
+                          bottom: 115,
                           child: ChartLabel(text: 'STUDY'),
                         ),
 
                         const Positioned(
-                          left: 0,
-                          bottom: 25,
+                          left: 5,
+                          bottom: 60,
                           child: ChartLabel(text: 'MEDITATION'),
                         ),
                       ],
@@ -740,30 +744,30 @@ class ChartPage extends StatelessWidget {
 
               Container(
                 width: double.infinity,
-                height: 188,
-                padding: const EdgeInsets.fromLTRB(31, 35, 20, 20),
+                height: 200,
+                padding: const EdgeInsets.fromLTRB(35, 40, 20, 20),
                 decoration: BoxDecoration(
                   color: appPanel,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProgressPill(
                       text: 'STUDY',
-                      width: 165,
+                      width: 175,
                       color: cardBg,
                     ),
 
                     ProgressPill(
                       text: 'EXERCISE',
-                      width: 130,
+                      width: 135,
                       color: darkBg,
                     ),
 
                     ProgressPill(
                       text: 'MEDITATION',
-                      width: 96,
+                      width: 100,
                       color: accent,
                     ),
                   ],
@@ -780,7 +784,7 @@ class ChartPage extends StatelessWidget {
 class DonutChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    const stroke = 44.0;
+    const stroke = 62.0;
 
     final center = Offset(
       size.width / 2,
@@ -829,28 +833,14 @@ class DonutChartPainter extends CustomPainter {
       paint,
     );
 
-    // Garisan pemisah putih
-    final separator = Paint()
-      ..color = appPanel
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      math.pi * 2,
-      false,
-      separator,
-    );
-
-    // Lubang tengah
+    // Center hole
     final hole = Paint()
       ..style = PaintingStyle.fill
       ..color = appPanel;
 
     canvas.drawCircle(
       center,
-      57,
+      63,
       hole,
     );
   }
@@ -869,22 +859,24 @@ class ChartLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMeditation = text == 'MEDITATION';
+
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 11,
-        vertical: 4,
+        horizontal: 10,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: softLabel,
-        borderRadius: BorderRadius.circular(15),
+        color: isMeditation ? accent.withOpacity(0.3) : softLabel,
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: darkBg,
-          fontSize: 12,
+        style: TextStyle(
+          color: isMeditation ? accent : darkBg,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1.3,
+          letterSpacing: 1,
         ),
       ),
     );
@@ -907,13 +899,13 @@ class ProgressPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      height: 22,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.only(left: 11),
+      height: 24,
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.only(left: 14),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         text,
@@ -921,13 +913,13 @@ class ProgressPill extends StatelessWidget {
           color: Colors.white,
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1,
+          letterSpacing: 1.2,
         ),
       ),
     );
   }
 }
-/* ================= FOCUS PAGE ================= */
+// FOCUS PAGE
 
 class FocusPage extends StatefulWidget {
   final VoidCallback onPointAdded;
@@ -957,7 +949,7 @@ class _FocusPageState extends State<FocusPage> {
     if (min == null || min <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila masukkan masa yang betul'),
+          content: Text('Please enter the correct time.'),
         ),
       );
       return;
@@ -973,7 +965,7 @@ class _FocusPageState extends State<FocusPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Timer set kepada $min minit'),
+        content: Text('Timer set to $min minute'),
       ),
     );
   }
@@ -1026,6 +1018,13 @@ class _FocusPageState extends State<FocusPage> {
         }
       },
     );
+  }
+
+  void pause() {
+    timer?.cancel();
+    setState(() {
+      isRunning = false;
+    });
   }
 
   void restart() {
@@ -1163,9 +1162,10 @@ class _FocusPageState extends State<FocusPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FocusCircleButton(
-                icon: Icons.play_arrow,
+                icon: isRunning ? Icons.pause : Icons.play_arrow,
                 isStart: true,
-                onTap: start,
+                color: isRunning ? const Color(0xfff15b2a) : accent,
+                onTap: isRunning ? pause : start,
               ),
 
               FocusCircleButton(
@@ -1185,12 +1185,14 @@ class FocusCircleButton extends StatelessWidget {
   final IconData icon;
   final bool isStart;
   final VoidCallback onTap;
+  final Color? color;
 
   const FocusCircleButton({
     super.key,
     required this.icon,
     required this.isStart,
     required this.onTap,
+    this.color,
   });
 
   @override
@@ -1202,7 +1204,7 @@ class FocusCircleButton extends StatelessWidget {
         width: 88,
         height: 88,
         decoration: BoxDecoration(
-          color: isStart ? accent : appPanel,
+          color: color ?? (isStart ? accent : appPanel),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -1214,13 +1216,44 @@ class FocusCircleButton extends StatelessWidget {
     );
   }
 }
-/* ================= REMINDER PAGE ================= */
+// REMINDER PAGE
 
-class ReminderPage extends StatelessWidget {
+class ReminderPage extends StatefulWidget {
   const ReminderPage({super.key});
 
   @override
+  State<ReminderPage> createState() => _ReminderPageState();
+}
+
+class _ReminderPageState extends State<ReminderPage> {
+  DateTime _focusedDate = DateTime.now();
+  DateTime _selectedDate = DateTime.now();
+
+  final List<String> _months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  int _daysInMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 0).day;
+  }
+
+  void _prevMonth() {
+    setState(() {
+      _focusedDate = DateTime(_focusedDate.year, _focusedDate.month - 1);
+    });
+  }
+
+  void _nextMonth() {
+    setState(() {
+      _focusedDate = DateTime(_focusedDate.year, _focusedDate.month + 1);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final days = _daysInMonth(_focusedDate);
+
     return PagePad(
       title: 'Reminder',
       titleSize: 34,
@@ -1235,14 +1268,30 @@ class ReminderPage extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const Text(
-                'Febuary',
-                style: TextStyle(
-                  color: darkBg,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 5,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: _prevMonth,
+                    icon: const Icon(Icons.chevron_left, color: darkBg),
+                  ),
+                  Expanded(
+                    child: Text(
+                      _months[_focusedDate.month - 1],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: darkBg,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _nextMonth,
+                    icon: const Icon(Icons.chevron_right, color: darkBg),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 12),
@@ -1261,19 +1310,39 @@ class ReminderPage extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: List.generate(
-                  28,
-                      (i) => CircleAvatar(
-                    radius: 15,
-                    backgroundColor: i < 2 ? accent : appCard,
-                    child: Text(
-                      '${i + 1}',
-                      style: TextStyle(
-                        color: isDarkMode ? Colors.white : darkBg,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                  days,
+                      (i) {
+                    final day = i + 1;
+                    final isSelected = _selectedDate.year == _focusedDate.year &&
+                        _selectedDate.month == _focusedDate.month &&
+                        _selectedDate.day == day;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = DateTime(
+                            _focusedDate.year,
+                            _focusedDate.month,
+                            day,
+                          );
+                        });
+                      },
+                      child: CircleAvatar(
+                        radius: 15,
+                        backgroundColor: isSelected ? accent : appCard,
+                        child: Text(
+                          '$day',
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.white
+                                : (isDarkMode ? Colors.white : darkBg),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
 
@@ -1366,7 +1435,7 @@ class ReminderPage extends StatelessWidget {
   }
 }
 
-/* ================= REMINDER INPUT PAGE ================= */
+// REMINDER INPUT PAGE
 
 class ReminderInputPage extends StatefulWidget {
   const ReminderInputPage({super.key});
@@ -1383,7 +1452,7 @@ class _ReminderInputPageState extends State<ReminderInputPage> {
     if (event.text.isEmpty || date.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila isi event dan date'),
+          content: Text('Please fill in the event and date'),
         ),
       );
       return;
@@ -1437,7 +1506,7 @@ class _ReminderInputPageState extends State<ReminderInputPage> {
     );
   }
 }
-/* ================= ACCOUNT PAGE ================= */
+// ACCOUNT PAGE
 
 class AccountPage extends StatelessWidget {
   final VoidCallback onChanged;
@@ -1462,19 +1531,25 @@ class AccountPage extends StatelessWidget {
       title: '',
       child: Column(
         children: [
-          Divider(
-            color: isDarkMode ? Colors.white : darkBg,
-            thickness: 4,
+          Container(
+            height: 8,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: inputColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
+
+          const SizedBox(height: 15),
 
           Row(
             children: [
               const CircleAvatar(
-                radius: 33,
-                backgroundColor: Colors.white,
+                radius: 68,
+                backgroundColor: Colors.white70,
               ),
 
-              const SizedBox(width: 15),
+              const SizedBox(width: 25),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1483,23 +1558,25 @@ class AccountPage extends StatelessWidget {
                     profileName.isEmpty ? 'Your Name' : profileName,
                     style: const TextStyle(
                       color: accent,
-                      fontSize: 14,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
                   Text(
                     '$userPoints points',
-                    style: TextStyle(
-                      color: isDarkMode ? Colors.white : darkBg,
-                      fontSize: 12,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
                   Text(
-                    loggedEmail,
+                    loggedEmail.isEmpty ? 'Email' : loggedEmail,
                     style: TextStyle(
                       color: isDarkMode ? Colors.white54 : Colors.black54,
-                      fontSize: 11,
+                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -1509,12 +1586,19 @@ class AccountPage extends StatelessWidget {
 
           const SizedBox(height: 15),
 
-          Divider(
-            color: isDarkMode ? Colors.white54 : Colors.black45,
+          Container(
+            height: 10,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: inputColor,
+              borderRadius: BorderRadius.circular(5),
+            ),
           ),
 
+          const SizedBox(height: 25),
+
           MenuTile(
-            icon: Icons.redeem,
+            icon: Icons.stars_outlined,
             text: 'Redeem',
             onTap: () {
               Navigator.push(
@@ -1527,7 +1611,7 @@ class AccountPage extends StatelessWidget {
           ),
 
           MenuTile(
-            icon: Icons.settings,
+            icon: Icons.hexagon_outlined,
             text: 'Settings',
             onTap: () {
               Navigator.push(
@@ -1540,7 +1624,7 @@ class AccountPage extends StatelessWidget {
           ),
 
           MenuTile(
-            icon: Icons.edit,
+            icon: Icons.person_search_outlined,
             text: 'Edit Profile',
             onTap: () async {
               await Navigator.push(
@@ -1555,7 +1639,7 @@ class AccountPage extends StatelessWidget {
           ),
 
           MenuTile(
-            icon: Icons.report,
+            icon: Icons.campaign_outlined,
             text: 'Report Bug',
             onTap: () {
               Navigator.push(
@@ -1568,7 +1652,7 @@ class AccountPage extends StatelessWidget {
           ),
 
           MenuTile(
-            icon: Icons.info,
+            icon: Icons.info_outline,
             text: 'About',
             onTap: () {
               Navigator.push(
@@ -1580,11 +1664,14 @@ class AccountPage extends StatelessWidget {
             },
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 40),
 
-          GreenButton(
-            text: 'Log Out',
-            onTap: () => logout(context),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GreenButton(
+              text: 'Log Out',
+              onTap: () => logout(context),
+            ),
           ),
         ],
       ),
@@ -1592,7 +1679,7 @@ class AccountPage extends StatelessWidget {
   }
 }
 
-/* ================= REDEEM PAGE ================= */
+// REDEEM PAGE
 
 class RedeemPage extends StatelessWidget {
   const RedeemPage({super.key});
@@ -1601,40 +1688,66 @@ class RedeemPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimplePage(
       title: '',
-      topIcon: Icons.stars,
+      backIcon: Icons.reply,
+      topWidget: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: inputColor,
+            width: 8,
+          ),
+        ),
+        child: const Icon(
+          Icons.stars,
+          color: inputColor,
+          size: 80,
+        ),
+      ),
       child: Column(
-        children: const [
-          Text(
+        children: [
+          const Text(
             'Redeem\nShop',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: accent,
-              fontSize: 23,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
-              letterSpacing: 4,
+              letterSpacing: 2,
             ),
           ),
 
-          SizedBox(height: 25),
+          const SizedBox(height: 25),
 
-          RedeemItem(
-            name: 'Product 1',
-            point: '1000',
-          ),
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: appPanel,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Column(
+              children: [
+                RedeemItem(
+                  name: 'Product 1',
+                  point: '1000',
+                ),
 
-          RedeemItem(
-            name: 'Product 2',
-            point: '2000',
-          ),
+                RedeemItem(
+                  name: 'Product 2',
+                  point: '2000',
+                ),
 
-          RedeemItem(
-            name: 'Product 3',
-            point: '3500',
-          ),
+                RedeemItem(
+                  name: 'Product 3',
+                  point: '3500',
+                ),
 
-          RedeemItem(
-            name: 'Product 4',
-            point: '5000',
+                RedeemItem(
+                  name: 'Product 4',
+                  point: '5000',
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1657,16 +1770,16 @@ class RedeemItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      height: 45,
+      height: 58,
       decoration: BoxDecoration(
         color: accent,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(35),
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: appPanel,
+          const CircleAvatar(
+            radius: 22,
+            backgroundColor: Color(0xffd9d9d9),
           ),
 
           const SizedBox(width: 18),
@@ -1677,6 +1790,7 @@ class RedeemItem extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
           ),
@@ -1686,6 +1800,7 @@ class RedeemItem extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
           ),
         ],
@@ -1694,7 +1809,7 @@ class RedeemItem extends StatelessWidget {
   }
 }
 
-/* ================= EDIT PROFILE PAGE ================= */
+// EDIT PROFILE PAGE
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -1718,7 +1833,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (name.text.isEmpty || email.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila isi nama dan email'),
+          content: Text('Please fill in your name and email.'),
         ),
       );
       return;
@@ -1741,6 +1856,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return SimplePage(
       title: '',
       avatar: true,
+      backIcon: Icons.reply,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1799,7 +1915,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
-/* ================= REPORT BUG PAGE ================= */
+// REPORT BUG PAGE
 
 class ReportBugPage extends StatefulWidget {
   const ReportBugPage({super.key});
@@ -1816,7 +1932,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
     if (title.text.isEmpty || desc.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila lengkapkan issue title dan description'),
+          content: Text('Please complete the issue title and description.'),
         ),
       );
       return;
@@ -1836,6 +1952,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
     return SimplePage(
       title: '',
       topIcon: Icons.campaign,
+      backIcon: Icons.reply,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1888,6 +2005,8 @@ class _ReportBugPageState extends State<ReportBugPage> {
             ),
           ),
 
+          const SizedBox(height: 12),
+
           GreenButton(
             text: 'Send',
             onTap: sendBug,
@@ -1898,7 +2017,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
   }
 }
 
-/* ================= ABOUT PAGE ================= */
+// ABOUT PAGE
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -1907,7 +2026,22 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimplePage(
       title: '',
-      topIcon: Icons.info_outline,
+      backIcon: Icons.reply,
+      topWidget: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: inputColor,
+            width: 8,
+          ),
+        ),
+        child: const Icon(
+          Icons.info_outline,
+          color: inputColor,
+          size: 80,
+        ),
+      ),
       child: Column(
         children: [
           const AppLogo(size: 92),
@@ -1915,10 +2049,21 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 25),
 
           Text(
-            'Ocufy\nv1.0.0',
+            'Ocufy',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          Text(
+            'v1.0.0',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 14,
             ),
           ),
 
@@ -1929,57 +2074,75 @@ class AboutPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
-              fontSize: 17,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              letterSpacing: 3,
+              letterSpacing: 2,
             ),
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 35),
 
           Text(
-            'Term of service',
+            'Term of Service',
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           Text(
             'Privacy Policy',
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           Text(
             'Open Source Licenses',
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
             ),
           ),
 
           const SizedBox(height: 55),
 
-          Text(
-            '© 2026 Ocufy Corp. All rights reserved',
-            style: TextStyle(
-              color: isDarkMode ? Colors.white : darkBg,
-              fontSize: 10,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.copyright,
+                color: isDarkMode ? Colors.white : darkBg,
+                size: 14,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                '2026 Ocufy Corp. All rights reserved',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : darkBg,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
-/* ================= SETTINGS DETAIL PAGE ================= */
+// SETTINGS DETAIL PAGE
 
 class SettingsDetailPage extends StatelessWidget {
   const SettingsDetailPage({super.key});
@@ -1997,75 +2160,81 @@ class SettingsDetailPage extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: Icon(
-                    Icons.arrow_back_ios,
+                    Icons.reply,
                     color: isDarkMode ? Colors.white : darkBg,
+                    size: 40,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
 
+              const SizedBox(height: 10),
+
               Text(
                 'Settings',
                 style: TextStyle(
-                  color: appText,
-                  fontSize: 24,
+                  color: isDarkMode ? Colors.white : darkBg,
+                  fontSize: 42,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 35),
 
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
                   decoration: BoxDecoration(
                     color: appCard,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(35),
                   ),
-                  child: Column(
-                    children: [
-                      SettingOption(
-                        icon: Icons.palette,
-                        text: 'Theme',
-                        page: const ThemePage(),
-                      ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SettingOption(
+                          icon: Icons.palette_outlined,
+                          text: 'Theme',
+                          page: const ThemePage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.edit,
-                        text: 'Change Password',
-                        page: const ChangePasswordPage(),
-                      ),
+                        SettingOption(
+                          icon: Icons.edit_outlined,
+                          text: 'Change Password',
+                          page: const ChangePasswordPage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.translate,
-                        text: 'Language',
-                        page: const LanguagePage(),
-                      ),
+                        SettingOption(
+                          icon: Icons.translate_outlined,
+                          text: 'Language',
+                          page: const LanguagePage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.notifications_none,
-                        text: 'Notifications',
-                        page: const NotificationPage(),
-                      ),
+                        SettingOption(
+                          icon: Icons.notifications_none_outlined,
+                          text: 'Notifications',
+                          page: const NotificationPage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.send,
-                        text: 'Send Feedback',
-                        page: const SendFeedbackPage(),
-                      ),
+                        SettingOption(
+                          icon: Icons.send_outlined,
+                          text: 'Send Feedback',
+                          page: const SendFeedbackPage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.security,
-                        text: 'Security',
-                        page: const SecurityPage(),
-                      ),
+                        SettingOption(
+                          icon: Icons.security_outlined,
+                          text: 'Security',
+                          page: const SecurityPage(),
+                        ),
 
-                      SettingOption(
-                        icon: Icons.headphones,
-                        text: 'Customer Services',
-                        page: const CustomerServicePage(),
-                      ),
-                    ],
+                        SettingOption(
+                          icon: Icons.headphones_outlined,
+                          text: 'Customer Services',
+                          page: const CustomerServicePage(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -2077,7 +2246,7 @@ class SettingsDetailPage extends StatelessWidget {
   }
 }
 
-/* ================= THEME PAGE ================= */
+// THEME PAGE
 
 class ThemePage extends StatefulWidget {
   const ThemePage({super.key});
@@ -2108,34 +2277,62 @@ class _ThemePageState extends State<ThemePage> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 35),
 
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => setThemeMode(false),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: !isDarkMode ? Colors.white : darkBg,
-                    foregroundColor: !isDarkMode ? darkBg : Colors.white,
-                    elevation: 0,
+          Container(
+            height: 65,
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: darkBg,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setThemeMode(false),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: !isDarkMode ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        'LIGHT',
+                        style: TextStyle(
+                          color: !isDarkMode ? accent : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const Text('LIGHT'),
                 ),
-              ),
 
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => setThemeMode(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDarkMode ? darkBg : Colors.white,
-                    foregroundColor: isDarkMode ? Colors.white : darkBg,
-                    elevation: 0,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setThemeMode(true),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        'DARK',
+                        style: TextStyle(
+                          color: isDarkMode ? darkBg : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const Text('DARK'),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -2143,7 +2340,7 @@ class _ThemePageState extends State<ThemePage> {
   }
 }
 
-/* ================= CHANGE PASSWORD PAGE ================= */
+// CHANGE PASSWORD PAGE
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -2161,7 +2358,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     if (email.text.isEmpty || newPass.text.isEmpty || confirmPass.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila lengkapkan semua maklumat'),
+          content: Text('Please complete all information.'),
         ),
       );
       return;
@@ -2245,7 +2442,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 }
 
-/* ================= LANGUAGE PAGE ================= */
+// LANGUAGE PAGE
 
 class LanguagePage extends StatefulWidget {
   const LanguagePage({super.key});
@@ -2277,7 +2474,7 @@ class _LanguagePageState extends State<LanguagePage> {
             padding: const EdgeInsets.only(bottom: 14),
             child: SizedBox(
               width: double.infinity,
-              height: 42,
+              height: 58,
               child: ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -2295,10 +2492,16 @@ class _LanguagePageState extends State<LanguagePage> {
                   foregroundColor: selected ? Colors.white : darkBg,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(29),
                   ),
                 ),
-                child: Text(lang),
+                child: Text(
+                  lang,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
           );
@@ -2308,7 +2511,7 @@ class _LanguagePageState extends State<LanguagePage> {
   }
 }
 
-/* ================= NOTIFICATION PAGE ================= */
+// NOTIFICATION PAGE
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -2359,7 +2562,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 }
-/* ================= SEND FEEDBACK PAGE ================= */
+// SEND FEEDBACK PAGE
 
 class SendFeedbackPage extends StatefulWidget {
   const SendFeedbackPage({super.key});
@@ -2375,7 +2578,7 @@ class _SendFeedbackPageState extends State<SendFeedbackPage> {
     if (feedback.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sila tulis feedback dahulu'),
+          content: Text('Please write feedback first'),
         ),
       );
       return;
@@ -2393,15 +2596,15 @@ class _SendFeedbackPageState extends State<SendFeedbackPage> {
   @override
   Widget build(BuildContext context) {
     return SettingSubPage(
-      icon: Icons.send,
+      icon: Icons.send_outlined,
       title: 'Send Feedback',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Description:',
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontWeight: FontWeight.bold,
             ),
           ),
 
@@ -2435,7 +2638,7 @@ class _SendFeedbackPageState extends State<SendFeedbackPage> {
   }
 }
 
-/* ================= SECURITY PAGE ================= */
+// SECURITY PAGE
 
 class SecurityPage extends StatelessWidget {
   const SecurityPage({super.key});
@@ -2528,7 +2731,7 @@ class SecurityVerificationPage extends StatelessWidget {
   }
 }
 
-/* ================= CUSTOMER SERVICE PAGE ================= */
+// CUSTOMER SERVICE PAGE
 
 class CustomerServicePage extends StatelessWidget {
   const CustomerServicePage({super.key});
@@ -2569,7 +2772,7 @@ class CustomerServicePage extends StatelessWidget {
   }
 }
 
-/* ================= REUSABLE WIDGETS ================= */
+// REUSABLE WIDGETS
 
 class PagePad extends StatelessWidget {
   final String title;
@@ -2663,8 +2866,9 @@ class SettingSubPage extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: Icon(
-                    Icons.arrow_back_ios,
+                    Icons.reply,
                     color: isDarkMode ? Colors.white : darkBg,
+                    size: 35,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -2673,7 +2877,7 @@ class SettingSubPage extends StatelessWidget {
               Icon(
                 icon,
                 color: isDarkMode ? Colors.white : darkBg,
-                size: 45,
+                size: 90,
               ),
 
               const SizedBox(height: 8),
@@ -2682,7 +2886,8 @@ class SettingSubPage extends StatelessWidget {
                 title,
                 style: TextStyle(
                   color: isDarkMode ? Colors.white : darkBg,
-                  fontSize: 13,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
@@ -2694,7 +2899,7 @@ class SettingSubPage extends StatelessWidget {
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     color: whiteCard ? Colors.white : appCard,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(22),
                   ),
                   child: SingleChildScrollView(
                     child: child,
@@ -2713,6 +2918,8 @@ class SimplePage extends StatelessWidget {
   final String title;
   final Widget child;
   final IconData? topIcon;
+  final Widget? topWidget;
+  final IconData? backIcon;
   final bool avatar;
 
   const SimplePage({
@@ -2720,6 +2927,8 @@ class SimplePage extends StatelessWidget {
     required this.title,
     required this.child,
     this.topIcon,
+    this.topWidget,
+    this.backIcon,
     this.avatar = false,
   });
 
@@ -2736,25 +2945,30 @@ class SimplePage extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: Icon(
-                    Icons.arrow_back_ios,
+                    backIcon ?? Icons.arrow_back_ios,
                     color: isDarkMode ? Colors.white : darkBg,
+                    size: backIcon != null ? 35 : 24,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
 
-              if (topIcon != null)
-                Icon(
-                  topIcon,
-                  color: isDarkMode ? Colors.white : darkBg,
-                  size: 90,
-                ),
+              if (topWidget != null)
+                topWidget!
+              else ...[
+                if (topIcon != null)
+                  Icon(
+                    topIcon,
+                    color: isDarkMode ? Colors.white : darkBg,
+                    size: 90,
+                  ),
 
-              if (avatar)
-                const CircleAvatar(
-                  radius: 70,
-                  backgroundColor: Colors.white70,
-                ),
+                if (avatar)
+                  const CircleAvatar(
+                    radius: 70,
+                    backgroundColor: Colors.white70,
+                  ),
+              ],
 
               if (title.isNotEmpty)
                 Text(
@@ -2774,7 +2988,7 @@ class SimplePage extends StatelessWidget {
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     color: appCard,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(22),
                   ),
                   child: SingleChildScrollView(
                     child: child,
@@ -2830,22 +3044,38 @@ class MenuTile extends StatelessWidget {
       children: [
         ListTile(
           dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 5),
           onTap: onTap,
-          leading: Icon(
-            icon,
-            color: isDarkMode ? Colors.white : darkBg,
-            size: 18,
+          leading: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDarkMode ? Colors.white : darkBg,
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isDarkMode ? Colors.white : darkBg,
+              size: 22,
+            ),
           ),
           title: Text(
             text,
             style: TextStyle(
               color: isDarkMode ? Colors.white : darkBg,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
 
+        const SizedBox(height: 5),
+
         Divider(
           color: isDarkMode ? Colors.white24 : Colors.black26,
+          thickness: 2,
         ),
       ],
     );
@@ -2866,29 +3096,33 @@ class SettingOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(
-        icon,
-        color: isDarkMode ? Colors.white : darkBg,
-        size: 19,
-      ),
-      title: Text(
-        text,
-        style: TextStyle(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ListTile(
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          icon,
           color: isDarkMode ? Colors.white : darkBg,
-          fontSize: 13,
+          size: 28,
         ),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => page,
+        title: Text(
+          text,
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : darkBg,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => page,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -3174,7 +3408,7 @@ class GreenButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
         child: Text(
