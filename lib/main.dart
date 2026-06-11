@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'splash_screen.dart';
 
 void main() => runApp(const PomodoroApp());
 
@@ -42,9 +43,13 @@ class PomodoroApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Ocufy Pomodoro',
       theme: ThemeData(
-        fontFamily: 'Arial',
+        fontFamily: 'Plus Jakarta Sans',
       ),
-      home: const LoginStartPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => const LoginStartPage(),
+      },
     );
   }
 }
@@ -3434,10 +3439,10 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.bubble_chart,
-      color: accent,
-      size: size,
+    return Image.asset(
+      'images/logo.png',
+      width: size,
+      height: size,
     );
   }
 }
