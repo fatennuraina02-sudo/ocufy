@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956472452139",
+    "project_id": "ocufy-55115",
+    "storage_bucket": "ocufy-55115.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956472452139:android:20111e8112fef377daf66e",
+        "android_client_info": {
+          "package_name": "com.example.ocufy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiOxPIJI5csdYzazE-_dVH9w-5ddcZKbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

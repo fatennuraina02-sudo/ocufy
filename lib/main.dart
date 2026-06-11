@@ -2,8 +2,23 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-void main() => runApp(const PomodoroApp());
+
+final String databaseURL = "https://ocufy-55115-default-rtdb.asia-southeast1.firebasedatabase.app/";
+
+DatabaseReference get dbRef => FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: databaseURL,
+).ref();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const PomodoroApp());
+}
 
 const Color darkBg = Color(0xff1d1b55);
 const Color cardBg = Color(0xff5a548c);
@@ -132,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
   final email = TextEditingController();
   final password = TextEditingController();
 
-  void login() {
+  void login() async {
     if (email.text.isEmpty || password.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -142,15 +157,40 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    loggedEmail = email.text.trim();
-    profileName = loggedEmail.split('@').first;
+    try {
+      // Authenticate with Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.text.trim(),
+        password: password.text.trim(),
+      );
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const LoginSuccessPage(),
-      ),
-    );
+      // Fetch user's saved points from your database URL
+      final uid = userCredential.user?.uid;
+      if (uid != null) {
+        final snapshot = await dbRef.child('users').child(uid).child('points').get();
+        if (snapshot.exists) {
+          userPoints = int.tryParse(snapshot.value.toString()) ?? 0;
+        }
+      }
+
+      loggedEmail = email.text.trim();
+      profileName = loggedEmail.split('@').first;
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LoginSuccessPage(),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login Error: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   @override
@@ -230,7 +270,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final password = TextEditingController();
   final confirm = TextEditingController();
 
-  void register() {
+  void register() async {
     if (email.text.isEmpty || password.text.isEmpty || confirm.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -249,12 +289,37 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const RegisterSuccessPage(),
-      ),
-    );
+    try {
+      // Create user inside Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email.text.trim(),
+        password: password.text.trim(),
+      );
+
+      // Create initial profile payload in your Realtime Database region
+      final uid = userCredential.user?.uid;
+      if (uid != null) {
+        await dbRef.child('users').child(uid).set({
+          'email': email.text.trim(),
+          'points': userPoints,
+        });
+      }
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const RegisterSuccessPage(),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration Error: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   @override
@@ -1007,6 +1072,12 @@ class _FocusPageState extends State<FocusPage> {
             accumulatedMinutes -= 60;
           }
 
+          // Save updated point counter to the authenticated user's node
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            dbRef.child('users').child(user.uid).child('points').set(userPoints);
+          }
+
           setState(() {
             isRunning = false;
           });
@@ -1521,13 +1592,16 @@ class AccountPage extends StatelessWidget {
     required this.onChanged,
   });
 
-  void logout(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const LogoutSuccessPage(),
-      ),
-    );
+  void logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut(); // Signs user out of Firebase session
+    if (context.mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LogoutSuccessPage(),
+        ),
+      );
+    }
   }
 
   @override
